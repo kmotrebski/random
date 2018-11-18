@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+
+  tests:
+    image: ${DOCKER_REGISTRY}/php:7.1-apache
+    command: ["php", "vendor/phpunit/phpunit/phpunit", "--stop-on-failure", "tests/"]
+    volumes:
+     - ./:/var/www/html
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.10
+    mem_limit: "8g"
+    cpuset: "0"
+    environment:
+      http.host: 0.0.0.0
+      transport.host: 127.0.0.1
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms3072m -Xmx3072m"
+
+  fluentd:
+    image: ${DOCKER_REGISTRY}/fluentd:prod

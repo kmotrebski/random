@@ -1,0 +1,37 @@
+FROM fluent/fluentd:v0.12-debian
+
+MAINTAINER Konrad Otrebski
+
+# This is development image with configuration files not packed but rather to
+# be included via volumes.
+
+# Todo:
+# todo - remove git
+# todo - switch from building from source (the patch after my report) to specific version with this patch
+# todo - see https://github.com/uken/fluent-plugin-elasticsearch/issues/198
+
+RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev git" \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends $buildDeps \
+ && sudo gem install \
+#        fluent-plugin-elasticsearch \
+        fluent-plugin-record-reformer \
+ && ls -al
+
+ENV FLUENT_ES_PLUGIN_VER="2.11.3"
+
+RUN cd /tmp/ \
+ && git clone git://github.com/uken/fluent-plugin-elasticsearch \
+ && cd fluent-plugin-elasticsearch \
+ && git checkout 205e0abb795c34003b37c883ad69363803ebf34b \
+ && gem install bundler \
+ && bundle install \
+ && bundle exec rake build \
+ && gem install pkg/fluent-plugin-elasticsearch-${FLUENT_ES_PLUGIN_VER}.gem \
+ && sudo gem sources --clear-all \
+ && SUDO_FORCE_REMOVE=yes \
+    apt-get purge -y --auto-remove \
+                  -o APT::AutoRemove::RecommendsImportant=false \
+                  $buildDeps \
+ && rm -rf /var/lib/apt/lists/* \
+           /home/fluent/.gem/ruby/2.3.0/cache/*.gem

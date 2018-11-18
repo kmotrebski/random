@@ -1,0 +1,19 @@
+{
+  "name" : "fluentd-tests",
+  "minimum-stability" : "dev",
+  "require-dev": {
+    "elasticsearch/elasticsearch": "~5.0",
+    "phpunit/phpunit": "7.*"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Images\\Fluentd\\Tests\\": "tests"
+    }
+  },
+  "config": {
+    "discard-changes": true
+  },
+  "require": {
+    "phalcon/ide-stubs": "dev-master"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "template": "app_logs*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index.mapper.dynamic": false
+  },
+  "mappings": {
+    "app_logs": {
+      "dynamic": "strict",
+      "properties": {
+        "microservice": {
+          "type": "keyword"
+        },
+        "process": {
+          "type": "keyword"
+        },
+        "severity": {
+          "type": "keyword"
+        },
+        "severity_int": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "text"
+        },
+        "timestamp": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        },
+        "epoch_micros": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}
