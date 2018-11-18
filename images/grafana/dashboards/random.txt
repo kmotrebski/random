@@ -1,0 +1,10 @@
+grafana-cli --pluginsDir $GF_PATHS_PLUGINS plugins install grafana-simple-json-datasource
+
+grafana-cli --pluginsDir $GF_PATHS_PLUGINS plugins install  ryantxu-ajax-panel
+
+grafana-server restart --homepath="$GF_PATHS_HOME" --config="$GF_PATHS_CONFIG"
+
+
+
+
+

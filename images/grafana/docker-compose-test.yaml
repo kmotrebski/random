@@ -1,0 +1,30 @@
+version: '2'
+
+#This is for daily development of Grafana configuration.
+
+services:
+
+  grafana:
+    image: ${DOCKER_REGISTRY}/grafana:latest
+    ports:
+      - "3000:3000"
+
+#todo probably (90%) this elasticsearch container is not needed at all.
+#Till I don't have end2end tests that actually checkes if data from ES
+#are displayed in Grafana these container is not needed.
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    mem_limit: "3g"
+    cpuset: "0"
+    environment:
+      http.host: 0.0.0.0
+      transport.host: 127.0.0.1
+      #http://stackoverflow.com/questions/37508655/how-to-disable-elasticsearch-5-0-authentication
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms1024m -Xmx1024m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - /usr/share/elasticsearch/data

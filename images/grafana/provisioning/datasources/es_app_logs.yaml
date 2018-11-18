@@ -1,0 +1,15 @@
+# config file version
+apiVersion: 1
+
+datasources:
+- name: es_app_logs
+  type: elasticsearch
+  access: proxy
+  orgId: 1
+  url: "http://elastic:9200"
+  database: "app_logs"
+  esVersion: "5"
+  version: 1
+  editable: true
+  jsonData:
+    timeField: "timestamp"
