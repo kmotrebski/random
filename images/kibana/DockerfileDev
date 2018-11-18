@@ -1,0 +1,15 @@
+# escape=\
+FROM docker.elastic.co/kibana/kibana:5.2.2
+
+#This is a dev-like image where you have to mount the dashboards definitions
+#file as a volume.
+
+MAINTAINER Konrad Otrębski
+
+#install jq (JSON CLI processor)
+USER root
+RUN apt-get update && apt-get install -y jq
+USER kibana
+
+ENTRYPOINT ["/usr/share/otrebski/entrypoint.sh"]
+CMD [""]

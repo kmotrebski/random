@@ -1,0 +1,45 @@
+{
+  "mappings": {
+    "config": {
+      "properties": {
+        "buildNum": {
+          "type": "keyword"
+        },
+        "defaultIndex": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    },
+    "index-pattern": {
+      "properties": {
+        "fieldFormatMap": {
+          "type": "text"
+        },
+        "fields": {
+          "type": "text"
+        },
+        "intervalName": {
+          "type": "text"
+        },
+        "notExpandable": {
+          "type": "boolean"
+        },
+        "sourceFilters": {
+          "type": "text"
+        },
+        "timeFieldName": {
+          "type": "text"
+        },
+        "title": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}

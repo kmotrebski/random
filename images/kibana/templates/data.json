@@ -1,0 +1,23 @@
+{
+  "index": {
+    "_index": ".kibana",
+    "_type": "config",
+    "_id": "5.2.2"
+  }
+}
+{
+  "buildNum": 14723,
+  "defaultIndex": "${INDEX_PATTERN}"
+}
+{
+  "index": {
+    "_index": ".kibana",
+    "_type": "index-pattern",
+    "_id": "${INDEX_PATTERN}"
+  }
+}
+{
+  "title": "${INDEX_PATTERN}",
+  "timeFieldName": "timestamp",
+  "fields": ${APP_LOGS_PATTERN_AS_JSON}
+}
