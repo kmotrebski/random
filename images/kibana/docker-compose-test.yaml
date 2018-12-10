@@ -1,7 +1,5 @@
 version: '2'
 
-#todo czy moge podac Dockerfile jako Docker/Dockerfile?
-
 services:
 
   kibana:

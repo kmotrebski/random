@@ -191,4 +191,43 @@ class ESHelper
         }
 
     }
+
+    /**
+     * @param DataStander $stander
+     * @param float $maxWaitTime
+     * @param float $waitInt
+     * @return mixed
+     * @throws Exception
+     */
+    public function waitForDataInElasticsearch(
+        DataStande $stander,
+        float $maxWaitTime = 10.0,
+        float $waitInt = 0.2
+    ) {
+
+        $startAt = microtime(true);
+        $waitTill = $startAt + $maxWaitTime;
+        $waitIntInMicroSecs = (int) ($waitInt * 1000 * 1000);
+
+        while (true) {
+
+            if ($stander->isDataThere($this)) {
+                return $stander->getData($this);
+            }
+
+            $now = microtime(true);
+
+            if ($waitTill < $now) {
+                break;
+            }
+
+            usleep($waitIntInMicroSecs);
+        }
+
+        $fmt = 'Waited "%s" s with "%s" s intervals using "%s" stander and '.
+            'data are still not there!';
+        $msg = sprintf($fmt, $maxWaitTime, $waitInt, get_class($stander));
+        throw new Exception($msg);
+    }
+
 }

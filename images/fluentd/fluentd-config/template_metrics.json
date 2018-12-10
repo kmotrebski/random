@@ -1,0 +1,37 @@
+{
+  "template": "php_app_metrics001*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index.mapper.dynamic": false
+  },
+  "mappings" : {
+    "metrics" : {
+      "dynamic": "strict",
+      "properties" : {
+        "intValue" : {
+          "type" : "integer"
+        },
+        "floatValue" : {
+          "type" : "float"
+        },
+        "key" : {
+          "type" : "keyword"
+        },
+        "@time": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+        },
+        "epoch_micros": {
+          "type": "long"
+        },
+        "microservice" : {
+          "type" : "keyword"
+        },
+        "process" : {
+          "type" : "keyword"
+        }
+      }
+    }
+  }
+}
