@@ -3,6 +3,7 @@
 #create all directories
 mkdir -p logs/fluentd
 mkdir -p logs/sth_awesome
+chmod 777 logs
 chmod 777 logs/fluentd
 chmod 777 logs/sth_awesome
 
