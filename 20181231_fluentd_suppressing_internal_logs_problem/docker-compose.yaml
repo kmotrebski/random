@@ -3,7 +3,8 @@ version: '2'
 services:
 
   fluentd:
-    image: fluent/fluentd:edge
+    #tested using v1.3.2-debian-1.0 too
+    image: fluent/fluentd:v1.3.2-1.0
     mem_limit: "512m"
     ports:
       - "5170:5170"

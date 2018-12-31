@@ -19,7 +19,7 @@ docker-compose -p test up -d
 sleep 5
 
 #stream log that will cause an "pattern not match message" error
-echo 'awesome:123456' | netcat localhost 5170
+echo 'invalid_string' | netcat localhost 5170
 
 #wait
 sleep 3
