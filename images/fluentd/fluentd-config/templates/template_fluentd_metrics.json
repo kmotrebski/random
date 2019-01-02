@@ -1,0 +1,49 @@
+{
+  "order": 0,
+  "template": "fluentd_metrics_001*",
+  "settings": {
+    "index": {
+      "number_of_shards": "1",
+      "number_of_replicas": "0",
+      "mapper": {
+        "dynamic": "false"
+      }
+    }
+  },
+  "mappings" : {
+    "docs" : {
+      "dynamic": "strict",
+      "properties" : {
+        "timestamp": {
+          "format": "yyyy-MM-dd HH:mm:ss.SSSSSS",
+          "type": "date"
+        },
+        "plugin_id" : {
+          "type" : "keyword"
+        },
+        "plugin_category" : {
+          "type" : "keyword"
+        },
+        "type" : {
+          "type" : "keyword"
+        },
+        "output_plugin" : {
+          "type" : "boolean"
+        },
+        "buffer_queue_length" : {
+          "type" : "long"
+        },
+        "buffer_total_queued_size" : {
+          "type" : "long"
+        },
+        "retry_count" : {
+          "type" : "long"
+        },
+        "debug" : {
+          "type" : "text"
+        }
+      }
+    }
+  },
+  "aliases": {}
+}

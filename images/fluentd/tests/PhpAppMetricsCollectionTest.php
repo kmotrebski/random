@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Images\Fluentd\Tests;
+namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests;
 
-use Library\Clock\MockTime;
-use Library\Metrics\FluentdCollector;
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\FloatMetricDataStander;
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\IntMetricDataStander;
+use KMOtrebski\Library\Clock\MockTime;
+use KMOtrebski\Library\Metrics\FluentdCollector;
 
 class PhpAppMetricsCollectionTest extends TestCase
 {
@@ -90,7 +92,8 @@ class PhpAppMetricsCollectionTest extends TestCase
 
         $fluentdHelper = new FluentdHelper(
             $fHost,
-            $fPort
+            $fPort,
+            24444
         );
         $fluentdHelper->wait();
     }

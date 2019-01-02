@@ -19,11 +19,14 @@ source ./.env
 
 # build dev image
 docker build --file images/fluentd/docker/DockerfileDev \
-             --tag ${DOCKER_REGISTRY}/fluentd:dev $1 images/fluentd
+             --tag ${DOCKER_REGISTRY}/fluentd:dev \
+             --build-arg BASE_IMAGE=fluent/fluentd:v1.3.2-debian-1.0 \
+             $1 images/fluentd
 
 # build prod image
 docker build --file images/fluentd/docker/Dockerfile \
              --tag ${DOCKER_REGISTRY}/fluentd:prod \
-             --build-arg BASE_IMAGE=${DOCKER_REGISTRY}/fluentd:dev $1 images/fluentd
+             --build-arg BASE_IMAGE=${DOCKER_REGISTRY}/fluentd:dev \
+             $1 images/fluentd
 
 printf "${GREEN}Built Docker images for Fluentd service!${NC}\n"

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Images\Fluentd\Tests;
+namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use Library\Logging\Logger;
+use KMOtrebski\Library\Logging\Logger;
 use Phalcon\Config;
 
 class Helper
@@ -30,7 +30,8 @@ class Helper
         $interval = 0.3;
 
         //max time
-        $waitTill = microtime(true) + $waitTime;
+        $startAt = microtime(true);
+        $waitTill = $startAt + $waitTime;
 
         while (true) {
 
@@ -56,8 +57,11 @@ class Helper
             usleep($intWait);
         }
 
+        $now = microtime(true);
+        $actualWaiting = $now - $startAt;
+
         $msgFmt = 'Document "%s" is not there! Waited %s s with %s s intervals and failed!';
-        $msg = sprintf($msgFmt, $expectedMessage, $waitTime, $interval);
+        $msg = sprintf($msgFmt, $expectedMessage, $actualWaiting, $interval);
         throw new Exception($msg);
     }
 
@@ -76,7 +80,47 @@ class Helper
 
         self::checkIndexPattern($template, 'app_logs*');
         self::checkMappingIsStrict($template, 'app_logs');
-        self::checkHasExpectedFields($template);
+
+        $expected = self::expectedMapping();
+        self::checkHasExpectedFields($template, 'app_logs', $expected);
+
+        return true;
+    }
+
+    /**
+     * @param ESHelper $helper
+     * @param string $json expected template as JSON
+     * @return bool
+     * @throws
+     */
+    public static function indexTemplateForTracklogIsCreated(
+        ESHelper $helper
+    ) : bool {
+
+        $name = 'template_tracklog_v1';
+        $template = self::readTemplate($helper, $name);
+
+        self::checkIndexPattern($template, 'tracklog*');
+        self::checkMappingIsStrict($template, 'raw');
+
+        return true;
+    }
+
+    /**
+     * @param ESHelper $helper
+     * @param string $json expected template as JSON
+     * @return bool
+     * @throws
+     */
+    public static function indexTemplateForLatencyMetricsIsCreated(
+        ESHelper $helper
+    ) : bool {
+
+        $name = 'template_skrynt_v1';
+        $template = self::readTemplate($helper, $name);
+
+        self::checkIndexPattern($template, 'skrynt*');
+        self::checkMappingIsStrict($template, 'latency');
 
         return true;
     }
@@ -89,14 +133,14 @@ class Helper
      * @return array
      * @throws Exception
      */
-    private static function readTemplate(
+    public static function readTemplate(
         ESHelper $helper,
         string $name
     ) : array {
 
         //setup
-        $waitTime = 90.0;
-        $interval = 0.5;
+        $waitTime = 10.0;
+        $interval = 0.2;
 
         //max time
         $waitTill = microtime(true) + $waitTime;
@@ -135,7 +179,7 @@ class Helper
      * @return bool
      * @throws InvalidTemplateException
      */
-    protected static function checkIndexPattern(
+    public static function checkIndexPattern(
         array $template,
         string $expected
     ) : bool {
@@ -154,7 +198,7 @@ class Helper
      * @return bool
      * @throws InvalidTemplateException
      */
-    private static function checkMappingIsStrict(
+    public static function checkMappingIsStrict(
         array $template,
         string $type
     ) : bool {
@@ -179,14 +223,13 @@ class Helper
 
     /**
      * @param array $template
+     * @param array $expected
      * @return bool
      * @throws InvalidTemplateException
      */
-    protected static function checkHasExpectedFields(array $template)
+    public static function checkHasExpectedFields(array $template, string $type, array $expected)
     {
-        $expected = self::expectedMapping();
-
-        $actual = $template['mappings']['app_logs']['properties'];
+        $actual = $template['mappings'][$type]['properties'];
 
         if (true === self::areFieldsVerySame($actual, $expected)) {
             return true;
@@ -303,5 +346,112 @@ class Helper
         );
 
         return $instance;
+    }
+
+    public static function makeItIsNotCloseToMidnight()
+    {
+        $halfOfSecond = (int) (1000 * 1000 * 0.5);
+
+        while (true) {
+            if (false === self::isCloseToMidnight()) {
+                return;
+            }
+
+            usleep($halfOfSecond);
+        }
+    }
+
+    private static function isCloseToMidnight()
+    {
+        $now = self::getCurrentTime();
+
+        $hour = (int) $now->format('H');
+        $minute = (int) $now->format('i');
+        $second = (int) $now->format('s');
+
+        if (23 === $hour && 59 === $minute && $second >= 30) {
+            return true;
+        }
+
+        if (0 === $hour && 0 === $minute && $second <= 2) {
+            //wait at least till 00:00:03
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function getCurrentTime() : \DateTimeImmutable
+    {
+        $zone = new \DateTimeZone('UTC');
+        return new \DateTimeImmutable('now', $zone);
+    }
+
+    public static function getFluentdLogsIndexNameForTime(\DateTimeImmutable $time) : string
+    {
+        $format = 'fluentd_logs_001_%s';
+        $dateSuffix = $time->format('Ymd');
+        $index = sprintf($format, $dateSuffix);
+        return $index;
+    }
+
+    public static function getFluentdMetricsIndexName(\DateTimeImmutable $time) : string
+    {
+        $format = 'fluentd_metrics_001_%s';
+        $dateSuffix = $time->format('Ymd');
+        $index = sprintf($format, $dateSuffix);
+        return $index;
+    }
+
+    public static function isValidFluentdLogDocument(array $doc) : bool
+    {
+        if (true === isset($doc['severity'])) {
+            return true;
+        }
+
+        if (true === isset($doc['timestamp'])) {
+            return true;
+        }
+
+        if (true === isset($doc['message'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function checkIfValidFluentdLogDocument(array $doc) : bool
+    {
+        if (true === self::isValidFluentdLogDocument($doc)) {
+            return true;
+        }
+
+        $fmt = 'Encountered invalid document: %s';
+        $msg = sprintf($fmt, json_encode($doc));
+        throw new Exception($msg);
+    }
+
+    public static function isValidFluentdMetricDocument(array $doc) : bool
+    {
+        $fields = [
+            'plugin_id',
+            'plugin_category',
+            'type',
+            'output_plugin',
+            'buffer_queue_length',
+            'buffer_total_queued_size',
+            'retry_count',
+            'timestamp',
+            'debug',
+        ];
+
+        //return true of there is any unexpected field
+        foreach ($doc as $field => $value) {
+            if (false === in_array($field, $fields, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

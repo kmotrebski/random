@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Images\Fluentd\Tests;
+namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander;
+
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander;
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\ESHelper;
 
 abstract class MetricDataStander implements DataStander
 {

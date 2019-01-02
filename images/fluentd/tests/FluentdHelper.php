@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Images\Fluentd\Tests;
+namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests;
+
+use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 
 class FluentdHelper
 {
@@ -15,6 +18,16 @@ class FluentdHelper
     protected $port;
 
     /**
+     * @var int $rpcPort port for HTTP requests
+     */
+    protected $rpcPort;
+
+    /**
+     * @var Client $httpClient
+     */
+    protected $httpClient;
+
+    /**
      * Stores info if instance is already up and running.
      *
      * So that helper don't waste time for multiple checking during same
@@ -24,11 +37,14 @@ class FluentdHelper
      */
     protected $instanceAlreadyUp;
 
-    public function __construct(string $host, int $port)
+    public function __construct(string $host, int $port, int $rpcPort)
     {
         $this->host = $host;
         $this->port = $port;
+        $this->rpcPort = $rpcPort;
         $this->instanceAlreadyUp = false;
+
+        $this->httpClient = new Client();
     }
 
     /**
@@ -77,5 +93,37 @@ class FluentdHelper
         }
 
         return false;
+    }
+
+    public function refreshConfig()
+    {
+        $url = $this->getConfigRefreshUrl();
+        $response = $this->httpClient->get($url);
+        self::checkRefreshResponse($response);
+        $this->instanceAlreadyUp = false;
+        return;
+    }
+
+    private function getConfigRefreshUrl() : string
+    {
+        $format = '%s:%s/api/config.reload';
+        $url = sprintf($format, $this->host, $this->rpcPort);
+        return $url;
+    }
+
+    private static function checkRefreshResponse(
+        ResponseInterface $response
+    ) : bool {
+        $code = $response->getStatusCode();
+        $body = $response->getBody()->getContents();
+        $expectedBody = '{"ok":true}';
+
+        if (200 !== $code || $expectedBody !== $body) {
+            $fmt = 'Cannot refresh configuration, response: %s';
+            $msg = sprintf($fmt, json_encode($response));
+            throw new \RuntimeException($msg);
+        }
+
+        return true;
     }
 }
