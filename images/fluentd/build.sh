@@ -20,7 +20,7 @@ source ./.env
 # build dev image
 docker build --file images/fluentd/docker/DockerfileDev \
              --tag ${DOCKER_REGISTRY}/fluentd:dev \
-             --build-arg BASE_IMAGE=fluent/fluentd:v1.3.2-debian-1.0 \
+             --build-arg BASE_IMAGE=fluent/fluentd:v1.3.3-debian-1.0 \
              $1 images/fluentd
 
 # build prod image

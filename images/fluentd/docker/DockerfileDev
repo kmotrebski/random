@@ -12,6 +12,8 @@ MAINTAINER Konrad Otrebski
 # todo - switch from building from source (the patch after my report) to specific version with this patch
 # todo - see https://github.com/uken/fluent-plugin-elasticsearch/issues/198
 
+USER root
+
 RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev git" \
  && apt-get update \
  && apt-get install -y --no-install-recommends $buildDeps \
@@ -26,3 +28,8 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev git" \
                   $buildDeps \
  && rm -rf /var/lib/apt/lists/* \
            /home/fluent/.gem/ruby/2.3.0/cache/*.gem
+
+#add PHP that is required to run own scripts
+RUN apt-get update && apt-get install -y php7.0-cli
+
+USER fluent

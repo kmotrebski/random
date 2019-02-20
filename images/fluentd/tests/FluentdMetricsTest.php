@@ -2,8 +2,9 @@
 
 namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests;
 
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\AllFluentdMetricsUseCustomPluginIdStander;
 use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\FluentdMetricsEveryTwoSecondsStander;
-use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\FluentdMetricsStander;
+use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\FluentdValidMetrisStander;
 use KMOtrebski\Infratifacts\Images\Fluentd\Tests\DataStander\IndexTemplateStander;
 
 class FluentdMetricsTest extends TestCase
@@ -73,7 +74,7 @@ class FluentdMetricsTest extends TestCase
     {
         $this->waitForMetricsTemplate();
 
-        $stander = new FluentdMetricsStander($this->now);
+        $stander = new FluentdValidMetricsStander($this->now);
         $docs = $this->esHelper->waitForDataInElasticsearch($stander);
 
         $this->assertTemplateMappingIsAsExpected();
@@ -102,6 +103,23 @@ class FluentdMetricsTest extends TestCase
     private function assertPluginGetsMetricsEveryTwoSeconds()
     {
         $stander = new FluentdMetricsEveryTwoSecondsStander();
+        $this->esHelper->waitForDataInElasticsearch($stander);
+        $this->assertTrue(true);
+    }
+
+    public function testReceivesPluginMetricsOmcsSummary()
+    {
+        //arrange
+
+        //act
+
+        //assert
+        $this->assertReceivesPluginMetricsOmcsSummary();
+    }
+
+    private function assertReceivesPluginMetricsOmcsSummary()
+    {
+        $stander = new FluentdMetricsOwnOmcsSummaryStander();
         $this->esHelper->waitForDataInElasticsearch($stander);
         $this->assertTrue(true);
     }
@@ -147,38 +165,20 @@ class FluentdMetricsTest extends TestCase
         return $fileContents;
     }
 
-    public function testMetricsEntriesIndexedHaveDedicatedPluginIdData()
+    public function testAllMetricsDocumentsHasCustomPluginIds()
     {
-        $this->markTestSkipped();
         //arrange
 
         //act
 
         //assert
-        $this->assertAllMetricsIndexedHaveDedicatedPluginId();
+        $this->assertAllMetricsDocumentsHasCustomPluginId();
     }
 
-    private function assertAllMetricsIndexedHaveDedicatedPluginId()
+    private function assertAllMetricsDocumentsHasCustomPluginId()
     {
-        //todo tu powinno być explicite czekanie maks np. 10 sekund?
-        $stander = new FluentdMetricsStander($this->now);
-        $metrics = $this->esHelper->waitForDataInElasticsearch($stander);
-
-        $this->assertGreaterThan(0, count($metrics));
-
-        foreach ($metrics as $document) {
-
-            $id = $document['plugin_id'];
-
-            if (strlen($id) < 1 || is_int(strpos($id, 'object:', 0))) {
-
-                $fmt = 'Found document with generic document id! Document: %s';
-                $msg = sprintf($fmt, json_encode($document, JSON_PRETTY_PRINT));
-                throw new \Exception($msg);
-            }
-
-        }
-
+        $stander = new AllFluentdMetricsUseCustomPluginIdStander($this->now);
+        $this->esHelper->waitForDataInElasticsearch($stander);
         $this->assertTrue(true);
     }
 }

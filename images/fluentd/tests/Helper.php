@@ -433,6 +433,19 @@ class Helper
 
     public static function isValidFluentdMetricDocument(array $doc) : bool
     {
+        if (false === self::hasMetricDocAllFields($doc)) {
+            return false;
+        }
+
+        if (false === self::hasMetricDocValidPluginId($doc)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function hasMetricDocAllFields(array $doc) : bool
+    {
         $fields = [
             'plugin_id',
             'plugin_category',
@@ -450,6 +463,15 @@ class Helper
             if (false === in_array($field, $fields, true)) {
                 return false;
             }
+        }
+
+        return true;
+    }
+
+    private static function hasMetricDocValidPluginId(array $doc) : bool
+    {
+        if (strlen($doc['plugin_id']) < 1) {
+            return false;
         }
 
         return true;
