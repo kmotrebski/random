@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace KMOtrebski\Infratifacts\Images\Fluentd\Tests;
+namespace Omcs\Infratifacts\Images\Fluentd\Tests;
 
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use KMOtrebski\Library\Logging\Logger;
+use Omcs\Library\Logging\Logger;
 use Phalcon\Config;
 
 class Helper
